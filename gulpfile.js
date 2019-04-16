@@ -30,18 +30,19 @@ function run() {
     if (grid.infs.hasOwnProperty(key)) {
       const node = grid.infs[key];
 
-      console.log(key, node);
-
-      servers.push(
-        child.spawn("node", ["./dist/app.js"], {
-          env: {
-            "db.mongoDb": key,
-            nodeName: key,
-            "http.port": node.port
-          },
-          stdio: "inherit"
-        })
-      );
+      if (node.type !== "controller")
+        servers.push(
+          child.spawn("node", ["./dist/app.js"], {
+            env: {
+              "db.mongoDb": key,
+              nodeName: key,
+              "http.port": node.address.split(":")[
+                node.address.split(":").length - 1
+              ]
+            },
+            stdio: "inherit"
+          })
+        );
     }
   }
   // server = child.spawn("node", ["./dist/app.js"], {

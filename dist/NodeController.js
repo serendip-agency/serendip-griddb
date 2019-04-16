@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class CollectionController {
-    constructor(dbService, collectionService) {
+class NodeController {
+    constructor(dbService, NodeService) {
         this.dbService = dbService;
-        this.collectionService = collectionService;
+        this.NodeService = NodeService;
         this.ensureIndex = {
             publicAccess: true,
             method: "POST",
@@ -15,10 +15,34 @@ class CollectionController {
                         options: req.body.options,
                         trackCollection: req.body.trackCollection
                     };
+                    Math.min();
                     const collectionName = req.params.collection;
                     const collection = await this.dbService.collection(collectionName, false);
                     await collection.ensureIndex(input.fieldOrSpec, input.options);
                     done(200);
+                }
+            ]
+        };
+        this.dropCollection = {
+            publicAccess: true,
+            method: "POST",
+            route: "/api/collection/:collection/dropCollection",
+            actions: [
+                async (req, res, next, done) => {
+                    const collectionName = req.params.collection;
+                    await this.dbService.dropCollection(collectionName);
+                    done(200);
+                }
+            ]
+        };
+        this.dbStats = {
+            publicAccess: true,
+            method: "POST",
+            route: "/api/db/stats",
+            actions: [
+                async (req, res, next, done) => {
+                    const collectionName = req.params.collection;
+                    res.json(await this.dbService.stats());
                 }
             ]
         };
@@ -115,4 +139,4 @@ class CollectionController {
         next();
     }
 }
-exports.CollectionController = CollectionController;
+exports.NodeController = NodeController;

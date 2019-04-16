@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = require("dotenv");
 const serendip_1 = require("serendip");
 const serendip_mongodb_provider_1 = require("serendip-mongodb-provider");
-const CollectionController_1 = require("./CollectionController");
-const CollectionService_1 = require("./CollectionService");
+const NodeController_1 = require("./NodeController");
+const NodeService_1 = require("./NodeService");
 dotenv.config();
 serendip_1.Server.dir = __dirname;
 serendip_1.DbService.configure({
@@ -23,18 +23,18 @@ serendip_1.DbService.configure({
     }
 });
 serendip_1.HttpService.configure({
-    controllers: [CollectionController_1.CollectionController],
+    controllers: [NodeController_1.NodeController],
     httpPort: parseInt(process.env["http.port"], 10)
 });
 serendip_1.start({
     logging: process.env["core.logging"] || "info",
     cpuCores: process.env["core.cpuCores"] || 1,
-    services: [serendip_1.DbService, serendip_1.HttpService, CollectionService_1.CollectionService]
+    services: [serendip_1.DbService, serendip_1.HttpService, NodeService_1.NodeService]
 })
     .then(async () => {
     // server started successfully
     console.log("\n\t" +
         new Date().toLocaleString() +
-        ` | grid node started: ${process.env.nodeName}\n`);
+        ` | Node node started: ${process.env.nodeName}\n`);
 })
     .catch(msg => console.log(msg));

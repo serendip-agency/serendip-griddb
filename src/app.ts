@@ -2,8 +2,10 @@ import * as dotenv from "dotenv";
 import { DbService, HttpService, Server, start } from "serendip";
 import { MongodbProvider } from "serendip-mongodb-provider";
 
-import { GridController } from "./GridController";
-import { GridService } from "./GridService";
+import { NodeController } from "./NodeController";
+import { NodeService } from "./NodeService";
+
+import * as fs from "fs-extra";
 
 dotenv.config();
 
@@ -26,14 +28,14 @@ DbService.configure({
 });
 
 HttpService.configure({
-  controllers: [GridController],
+  controllers: [NodeController],
   httpPort: parseInt(process.env["http.port"], 10)
 });
 
 start({
   logging: (process.env["core.logging"] as any) || "info",
   cpuCores: (process.env["core.cpuCores"] as any) || 1,
-  services: [DbService, HttpService, GridService]
+  services: [DbService, HttpService, NodeService]
 })
   .then(async () => {
     // server started successfully
@@ -41,7 +43,7 @@ start({
     console.log(
       "\n\t" +
         new Date().toLocaleString() +
-        ` | grid node started: ${process.env.nodeName}\n`
+        ` | Node node started: ${process.env.nodeName}\n`
     );
   })
   .catch(msg => console.log(msg));

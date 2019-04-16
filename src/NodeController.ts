@@ -4,13 +4,10 @@ import {
   DbService
 } from "serendip";
 import { DbCollectionInterface } from "serendip-business-model";
-import { GridService } from "./GridService";
+import { NodeService } from "./NodeService";
 
-export class GridController implements HttpControllerInterface {
-  constructor(
-    private dbService: DbService,
-    private GridService: GridService
-  ) {}
+export class NodeController implements HttpControllerInterface {
+  constructor(private dbService: DbService, private NodeService: NodeService) { }
   onRequest(req, res, next) {
     next();
   }
@@ -32,6 +29,7 @@ export class GridController implements HttpControllerInterface {
           trackCollection: req.body.trackCollection
         };
 
+
         const collectionName = req.params.collection;
 
         const collection = await this.dbService.collection(
@@ -42,6 +40,31 @@ export class GridController implements HttpControllerInterface {
         await collection.ensureIndex(input.fieldOrSpec, input.options);
 
         done(200);
+      }
+    ]
+  };
+
+  public dropCollection: HttpEndpointInterface = {
+    publicAccess: true,
+    method: "POST",
+    route: "/api/collection/:collection/dropCollection",
+    actions: [
+      async (req, res, next, done) => {
+        const collectionName = req.params.collection;
+        await this.dbService.dropCollection(collectionName);
+        done(200);
+      }
+    ]
+  };
+
+  public dbStats: HttpEndpointInterface = {
+    publicAccess: true,
+    method: "POST",
+    route: "/api/db/stats",
+    actions: [
+      async (req, res, next, done) => {
+        const collectionName = req.params.collection;
+        res.json(await this.dbService.stats());
       }
     ]
   };
