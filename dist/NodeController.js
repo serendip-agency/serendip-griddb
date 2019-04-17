@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class NodeController {
-    constructor(dbService, NodeService) {
+    constructor(dbService, nodeService) {
         this.dbService = dbService;
-        this.NodeService = NodeService;
+        this.nodeService = nodeService;
         this.ensureIndex = {
             publicAccess: true,
             method: "POST",
@@ -15,7 +15,6 @@ class NodeController {
                         options: req.body.options,
                         trackCollection: req.body.trackCollection
                     };
-                    Math.min();
                     const collectionName = req.params.collection;
                     const collection = await this.dbService.collection(collectionName, false);
                     await collection.ensureIndex(input.fieldOrSpec, input.options);

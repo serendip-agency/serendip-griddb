@@ -18,7 +18,10 @@ export class NodeService implements ServerServiceInterface {
   public nodeName = process.env.nodeName;
 
   public sockets: { [key: string]: WebSocket } = {};
-  constructor(private dbService: DbService) { }
+  constructor(private dbService: DbService) {
+
+
+  }
 
   async start() {
     this.grid = await fs.readJSON(".grid.json");
@@ -34,13 +37,15 @@ export class NodeService implements ServerServiceInterface {
 
   async connectStats() {
     const send = async () => {
-      console.log(this.nodeName + " | sending stats. ");
       for (const key in this.sockets) {
         if (this.sockets.hasOwnProperty(key)) {
           try {
             await new Promise(async (resolve, reject) => {
               const socket = this.sockets[key];
               if (!socket) return reject(new Error("no socket"));
+
+              console.log(this.nodeName + " | sending stats. ");
+
               socket.send(
                 JSON.stringify({
                   type: "stat",
@@ -59,7 +64,7 @@ export class NodeService implements ServerServiceInterface {
         send()
           .then(() => { })
           .catch(() => { });
-      }, 1000);
+      }, 10000);
     };
 
     send()
@@ -99,8 +104,8 @@ export class NodeService implements ServerServiceInterface {
         if (this.sockets[key]) return;
 
         this.newSocket(
-          controller.address,
-          "/" + this.nodeName,
+          controller.address.replace('http://', 'ws://').replace('https://', 'wss://'),
+          "/sockets/" + this.nodeName,
           this.grid.infs[this.nodeName].secret,
           true
         )

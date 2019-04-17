@@ -45,12 +45,7 @@ function run() {
         );
     }
   }
-  // server = child.spawn("node", ["./dist/app.js"], {
-  //   env : {
-  //     "db.mongoDb" :
-  //   },
-  //   stdio: "inherit"
-  // });
+  
 }
 
 // compile typescripts

@@ -7,7 +7,7 @@ import { DbCollectionInterface } from "serendip-business-model";
 import { NodeService } from "./NodeService";
 
 export class NodeController implements HttpControllerInterface {
-  constructor(private dbService: DbService, private NodeService: NodeService) { }
+  constructor(private dbService: DbService, private nodeService: NodeService) { }
   onRequest(req, res, next) {
     next();
   }

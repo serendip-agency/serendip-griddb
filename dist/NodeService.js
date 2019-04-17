@@ -7,6 +7,16 @@ class NodeService {
         this.dbService = dbService;
         this.nodeName = process.env.nodeName;
         this.sockets = {};
+        this.responders = {
+            "insert": (socket, input) => {
+            },
+            "update": (socket, input) => {
+            },
+            "delete": (socket, input) => {
+            },
+            "find": (socket, input) => {
+            },
+        };
     }
     async start() {
         this.grid = await fs.readJSON(".grid.json");
@@ -19,7 +29,6 @@ class NodeService {
     }
     async connectStats() {
         const send = async () => {
-            console.log(this.nodeName + " | sending stats. ");
             for (const key in this.sockets) {
                 if (this.sockets.hasOwnProperty(key)) {
                     try {
@@ -27,6 +36,7 @@ class NodeService {
                             const socket = this.sockets[key];
                             if (!socket)
                                 return reject(new Error("no socket"));
+                            console.log(this.nodeName + " | sending stats. ");
                             socket.send(JSON.stringify({
                                 type: "stat",
                                 model: await this.dbService.stats()
@@ -44,7 +54,7 @@ class NodeService {
                 send()
                     .then(() => { })
                     .catch(() => { });
-            }, 1000);
+            }, 10000);
         };
         send()
             .then(() => { })
@@ -58,9 +68,24 @@ class NodeService {
                     return;
                 if (this.sockets[key])
                     return;
-                this.newSocket(controller.address, "/" + this.nodeName, this.grid.infs[this.nodeName].secret, true)
+                this.newSocket(controller.address.replace('http://', 'ws://').replace('https://', 'wss://'), "/sockets/" + this.nodeName, this.grid.infs[this.nodeName].secret, true)
                     .then(socket => {
                     this.sockets[key] = socket;
+                    socket.on('message', (msg) => {
+                        let data;
+                        try {
+                            data = JSON.parse(msg.toString());
+                        }
+                        catch (error) {
+                            return;
+                        }
+                        try {
+                            this.responders[data.type](socket, data.model);
+                        }
+                        catch (error) {
+                            console.error('responder catch error ', data, error);
+                        }
+                    });
                     socket.on("close", () => {
                         this.sockets[key] = null;
                         this.connectSocket()
