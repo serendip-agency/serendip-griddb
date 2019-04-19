@@ -8,13 +8,13 @@ class NodeService {
         this.nodeName = process.env.nodeName;
         this.sockets = {};
         this.responders = {
-            "insert": (socket, input) => {
+            "insert": async (socket, input) => {
             },
-            "update": (socket, input) => {
+            "update": async (socket, input) => {
             },
-            "delete": (socket, input) => {
+            "delete": async (socket, input) => {
             },
-            "find": (socket, input) => {
+            "find": async (socket, input) => {
             },
         };
     }
@@ -36,7 +36,7 @@ class NodeService {
                             const socket = this.sockets[key];
                             if (!socket)
                                 return reject(new Error("no socket"));
-                            console.log(this.nodeName + " | sending stats. ");
+                            console.log("sending stats. ");
                             socket.send(JSON.stringify({
                                 type: "stat",
                                 model: await this.dbService.stats()
@@ -71,7 +71,7 @@ class NodeService {
                 this.newSocket(controller.address.replace('http://', 'ws://').replace('https://', 'wss://'), "/sockets/" + this.nodeName, this.grid.infs[this.nodeName].secret, true)
                     .then(socket => {
                     this.sockets[key] = socket;
-                    socket.on('message', (msg) => {
+                    socket.on('message', async (msg) => {
                         let data;
                         try {
                             data = JSON.parse(msg.toString());
@@ -80,7 +80,7 @@ class NodeService {
                             return;
                         }
                         try {
-                            this.responders[data.type](socket, data.model);
+                            await this.responders[data.type](key, data.model);
                         }
                         catch (error) {
                             console.error('responder catch error ', data, error);
@@ -113,13 +113,9 @@ class NodeService {
                 resolve(ws);
             })
                 .catch(ev => {
-                console.log(this.nodeName +
-                    " | " +
-                    `newSocket at ${path} initiate ended with catch`, ev.message);
+                console.log(`newSocket at ${path} initiate ended with catch`, ev.message);
                 if (retry && maxRetry > 1) {
-                    console.log(this.nodeName +
-                        " | " +
-                        `> WsService: trying again for newSocket at ${path} in 3sec`);
+                    console.log(`> WsService: trying again for newSocket at ${path} in 3sec`);
                     const tryTimer = setInterval(() => {
                         tries++;
                         this.initiateSocket(address, path, secret)
@@ -128,16 +124,12 @@ class NodeService {
                             return resolve(ws);
                         })
                             .catch(ev2 => {
-                            console.log(this.nodeName +
-                                " | " +
-                                `newSocket at ${path} initiate ended with catch`, ev2.message);
+                            console.log(`newSocket at ${path} initiate ended with catch`, ev2.message);
                             if (maxRetry && tries === maxRetry) {
                                 reject(ev2);
                             }
                             else {
-                                console.log(this.nodeName +
-                                    " | " +
-                                    `Trying again for newSocket at ${path} in 3sec`);
+                                console.log(`Trying again for newSocket at ${path} in 3sec`);
                             }
                         });
                     }, 3000);

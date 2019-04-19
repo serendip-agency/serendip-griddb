@@ -18,6 +18,7 @@ export class NodeController implements HttpControllerInterface {
     route: "/api/collection/:collection/ensureIndex",
     actions: [
       async (req, res, next, done) => {
+        
         const input: {
           fieldOrSpec: any;
           options: any;
@@ -28,7 +29,6 @@ export class NodeController implements HttpControllerInterface {
           options: req.body.options,
           trackCollection: req.body.trackCollection
         };
-
 
         const collectionName = req.params.collection;
 
@@ -182,6 +182,7 @@ export class NodeController implements HttpControllerInterface {
           collectionName,
           input.trackCollection
         );
+ 
         res.json(
           await collection.deleteOne(input._id, input.userId, input.tackOptions)
         );

@@ -111,6 +111,7 @@ class NodeController {
                     };
                     const collectionName = req.params.collection;
                     const collection = await this.dbService.collection(collectionName, input.trackCollection);
+                    console.log('\n', input, '\n');
                     res.json(await collection.deleteOne(input._id, input.userId, input.tackOptions));
                 }
             ]

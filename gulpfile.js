@@ -3,6 +3,7 @@ var ts = require("gulp-typescript");
 var fs = require("fs-extra");
 var mocha = require("gulp-mocha");
 var child = require("child_process");
+var chalk = require("chalk");
 
 var paths = {
   dist: "dist",
@@ -30,22 +31,35 @@ function run() {
     if (grid.infs.hasOwnProperty(key)) {
       const node = grid.infs[key];
 
-      if (node.type !== "controller")
-        servers.push(
-          child.spawn("node", ["./dist/app.js"], {
-            env: {
-              "db.mongoDb": key,
-              nodeName: key,
-              "http.port": node.address.split(":")[
-                node.address.split(":").length - 1
-              ]
-            },
-            stdio: "inherit"
-          })
-        );
+      if (node.type !== "controller") {
+        let childProcess = child.spawn("node", ["./dist/app.js"], {
+          env: {
+            "db.mongoDb": key,
+            nodeName: key,
+            "http.port": node.address.split(":")[
+              node.address.split(":").length - 1
+            ]
+          }
+        });
+
+        childProcess.stdout.on("data", chunk => {
+          console.log(
+            chalk.default.blue(`${new Date().toLocaleTimeString()} | ${key}\n`) +
+              chunk.toString()
+          );
+        });
+
+        childProcess.stderr.on("data", chunk => {
+          console.log(
+            chalk.default.red(`${new Date().toLocaleTimeString()} | ${key}\n`) +
+              chunk.toString()
+          );
+        });
+
+        servers.push(childProcess);
+      }
     }
   }
-  
 }
 
 // compile typescripts
