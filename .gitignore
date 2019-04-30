@@ -9,4 +9,3 @@ logs
 npm-debug.log
 node_modules
 ignore.json
-.grid.json

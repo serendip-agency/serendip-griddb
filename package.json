@@ -1,5 +1,5 @@
 {
-  "name": "serendip-griddb",
+  "name": "serendip-griddb-node",
   "version": "1.0.0",
   "description": "serendip grid database node",
   "main": "index.js",
